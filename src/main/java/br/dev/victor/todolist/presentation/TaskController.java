@@ -1,6 +1,5 @@
 package br.dev.victor.todolist.presentation;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -25,12 +24,6 @@ public class TaskController {
 
     public TaskController(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
-
-        this.taskRepository.saveAll(List.of(
-            new Task("First Task"),
-            new Task("Second Task"),
-            new Task("Third Task")
-        ));
     }
 
     @GetMapping
