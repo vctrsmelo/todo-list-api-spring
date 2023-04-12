@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-TodoListApplication<Todo-List>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "br.dev.victor.todolist.TodoListApplication",
+      "projectName": "Todo-List",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

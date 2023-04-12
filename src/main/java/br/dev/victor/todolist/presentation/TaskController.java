@@ -1,9 +1,9 @@
-package br.dev.victor.todolist.controllers;
+package br.dev.victor.todolist.presentation;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,16 +14,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.dev.victor.todolist.models.Task;
+import br.dev.victor.todolist.dataAccess.TaskRepository;
+import br.dev.victor.todolist.service.Task;
 
 @RestController
 @RequestMapping("/tasks")
 public class TaskController {
     
-    private List<Task> tasks = new ArrayList<>();
+    private final TaskRepository taskRepository;
 
-    public TaskController() {
-        tasks.addAll(List.of(
+    public TaskController(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
+
+        this.taskRepository.saveAll(List.of(
             new Task("First Task"),
             new Task("Second Task"),
             new Task("Third Task")
@@ -32,39 +35,27 @@ public class TaskController {
 
     @GetMapping
     Iterable<Task> getTasks() {
-        return tasks;
+        return taskRepository.findAll();
     }
 
     @GetMapping("/{id}")
     Optional<Task> getTask(@PathVariable String id) {
-        return tasks.stream()
-                    .filter(task -> task.getId().equals(id))
-                    .findFirst();
+        return taskRepository.findById(id);
     }
 
     @PostMapping
     Task postTask(@RequestBody Task task) {
-        tasks.add(task);
-        return task;
+        return taskRepository.save(task);
     }
 
     @PutMapping("{id}")
-    Task putTask(@PathVariable String id, @RequestBody Task task) {
-        int index = -1;
-        for (Task t : tasks) {
-            if (t.getId().equals(id)) {
-                index = tasks.indexOf(t);
-                tasks.set(index, task);
-                break;
-            }
-        }
-
-        return (index == -1) ? postTask(task) : task;
+    ResponseEntity<Task> putTask(@PathVariable String id, @RequestBody Task task) {
+        HttpStatus status = taskRepository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
+        return new ResponseEntity<>(taskRepository.save(task), status);
     }
 
     @DeleteMapping("{id}")
-    ResponseEntity<String> deleteTask(@PathVariable String id) {
-        Boolean isDeleted = tasks.removeIf(t -> t.getId().equals(id));
-        return isDeleted ? ResponseEntity.ok("Deleted with success") : ResponseEntity.badRequest().body("Did not find the task with ID "+id);
+    void deleteTask(@PathVariable String id) {
+        taskRepository.deleteById(id);
     }
 }
